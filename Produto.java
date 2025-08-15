@@ -1,11 +1,13 @@
-public class Produto {
+import java.io.Serializable;
+
+public class Produto implements Serializable {
 
     private static int ProximoId = 1;
     private int id;
     private double preço;
     private String nome, descrição, imagem;
 
-    public Produto(double preço, String nome, String descrição, String imagem) {
+    public Produto(String nome,Double preço, String descrição, String imagem) {
         this.id = ProximoId++;
         this.preço = preço;
         this.nome = nome;
@@ -13,12 +15,6 @@ public class Produto {
         this.imagem = imagem;
     }
 
-    public Produto(double preço, String nome, String descrição) {
-        this.id = ProximoId++;
-        this.preço = preço;
-        this.nome = nome;
-        this.descrição = descrição;
-    }
 
     public int getId() {
         return id;
@@ -36,10 +32,6 @@ public class Produto {
         return descrição;
     }
 
-    public String getImagem() {
-        return imagem;
-    }
-
     public void setPreço(double preço) {
         this.preço = preço;
     }
@@ -52,7 +44,4 @@ public class Produto {
         this.descrição = descrição;
     }
 
-    public void setImagem(String imagem) {
-        this.imagem = imagem;
-    }
 }

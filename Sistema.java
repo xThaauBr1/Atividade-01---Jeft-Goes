@@ -1,6 +1,6 @@
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
+import java.io.*;
 import java.nio.InvalidMarkException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,15 +14,35 @@ import static javax.print.attribute.standard.MediaSizeName.C;
 public class Sistema {
 
     Scanner scan = new Scanner(in);
-
-    List<Produto> meuProduto = new ArrayList<>();
+    List<Produto> meusProdutos = new ArrayList<>();
+    private final String Arquivo = "produtos.dat";
 
     public Sistema() {
-        this.meuProduto = meuProduto;
+        carregandoProdutos();
+
     }
 
 
-    public void CadastrarProdutos(){
+    public void salvandoProdutos(List<Produto> lista){
+        try(ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(Arquivo))){
+           out.writeObject(meusProdutos);
+
+        }catch (IOException e) {
+            System.out.println("❌ " + e.getMessage());
+        }
+    }
+
+
+    @SuppressWarnings("unchecked")
+    public void carregandoProdutos(){
+        try(ObjectInputStream ois = new ObjectInputStream(new FileInputStream(Arquivo))){
+        meusProdutos = (List<Produto>) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+        meusProdutos = new ArrayList<>();
+    }
+}
+
+    public void Cadastrar(){
         out.println("- Cadastro de produtos -\n");
 
         out.print("Digite o nome: ");
@@ -38,36 +58,41 @@ public class Sistema {
         out.print("Cole o caminho da imagem: ");
         String imagem = scan.nextLine().replace("\"", "");
 
-        Produto prod = new Produto(preco, nome, descriçao, imagem);
-        meuProduto.add(prod);
-        out.println("\nProduto " + prod.getId() + " adicionado com sucesso! ✅\n");
-
-        String minhaPasta = "C:\\Users\\xThaau\\xThaau\\Atividade 01 - Jefté\\MeusProdutos";
+        String minhaPasta = "C:\\Users\\xThaau\\Atividade 01 - Jefté\\MeusProdutos";
 
 
-        try {
-            Path de = Path.of(imagem);
+        if (!imagem.isBlank()) {
+            try {
+                Path de = Path.of(imagem);
 
-            if (!Files.exists(de)) {
-                System.out.println("❌ Imagem não encontrada.");
-                return;
-            }
+                if (!Files.exists(de)) {
+                    System.out.println("❌ Imagem não encontrada.");
+                    return;
+                }
 
-            BufferedImage testeImagem = ImageIO.read(de.toFile());
-            if (testeImagem == null) {
-                System.out.println("❌ O arquivo não é uma imagem válida.");
-                return;
-            }
+                BufferedImage testeImagem = ImageIO.read(de.toFile());
+                if (testeImagem == null) {
+                    System.out.println("❌ O arquivo não é uma imagem válida.");
+                    return;
+                }
 
+                File pasta = new File(minhaPasta);
+                pasta.mkdirs();
+                String nomeImagem = nome + " - " + System.currentTimeMillis() + ".jpeg";
+                Path para = Path.of(minhaPasta, nomeImagem);
+                Files.copy(de, para);
 
-            File pasta = new File(minhaPasta);
-            String nomeImagem = String.valueOf(prod.getId()) + " - " + prod.getNome() + ".jpeg";
-            Path para = Path.of(minhaPasta, nomeImagem);
-            Files.copy(de, para);
 
             } catch (Exception e) {
-
+                System.out.println("❌ " + e.getMessage());
             }
+            imagem = null;
+        }
+        Produto prod = new Produto(nome, preco, descriçao, imagem);
+        meusProdutos.add(prod);
+        salvandoProdutos(meusProdutos);
+
+        out.println("\nProduto " + prod.getId() + " adicionado com sucesso! ✅\n");
     }
 
 
@@ -80,7 +105,7 @@ public class Sistema {
 
         boolean achou = false;
 
-        for (Produto p : meuProduto){
+        for (Produto p : meusProdutos){
             if(idounome.equalsIgnoreCase(p.getNome()) || idounome.equalsIgnoreCase(String.valueOf(p.getId()))){
 
                 out.println("Produto "+p.getNome()+" encontrado! ✅\n");
@@ -98,6 +123,7 @@ public class Sistema {
                 String novaDescrição = scan.nextLine();
                 p.setDescrição(novaDescrição);
 
+                salvandoProdutos(meusProdutos);
                 out.println("\nProduto alterado com sucesso! ✅");
 
                 achou = true;
@@ -116,12 +142,13 @@ public class Sistema {
         out.print("Digite o id ou nome do produto: ");
         String idounome = scan.nextLine();
 
-        boolean removido = meuProduto.removeIf(p ->
+        boolean removido = meusProdutos.removeIf(p ->
                 idounome.equalsIgnoreCase(p.getNome()) ||
                         idounome.equalsIgnoreCase(String.valueOf(p.getId()))
         );
 
         if (removido) {
+            salvandoProdutos(meusProdutos);
             out.println("\nProduto removido com sucesso! ✅\n");
         } else {
             out.println("\nProduto não encontrado! ❌");
@@ -131,7 +158,12 @@ public class Sistema {
 
     public void Listar(){
         out.println("- Listar Produtos -\n");
-        for (Produto p : meuProduto){
+
+        if(meusProdutos.isEmpty()){
+            out.println("Nenhum produto cadastrado!\n");
+        }
+
+        for (Produto p : meusProdutos){
             out.println("Id: " + p.getId());
             out.println("Nome: " + p.getNome());
             out.println("Preço: R$" + p.getPreço());
@@ -143,7 +175,7 @@ public class Sistema {
     public void Vender() {
         out.println("- Produtos disponíveis -\n");
 
-        for (Produto p : meuProduto) {
+        for (Produto p : meusProdutos) {
             out.println(p.getId() + " - " + p.getNome() + " = R$" + p.getPreço());
         }
 
@@ -153,7 +185,7 @@ public class Sistema {
 
         Produto produtoSelecionado = null;
 
-        for (Produto p : meuProduto) {
+        for (Produto p : meusProdutos) {
             if (p.getId() == esc) {
                 produtoSelecionado = p;
                 break;
@@ -161,12 +193,12 @@ public class Sistema {
         }
 
         if (produtoSelecionado != null) {
+            salvandoProdutos(meusProdutos);
             out.println("✅ Você comprou: " + produtoSelecionado.getNome() + " por R$" + produtoSelecionado.getPreço());
         } else {
             out.println("❌ Produto não encontrado.");
         }
     }
 
-
-
 }
+

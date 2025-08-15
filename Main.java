@@ -16,8 +16,9 @@ public class Main {
                     "0 - Sair\n> ");
 
             esc = scan.nextInt();
+
             switch (esc){
-                case 1 -> meuSistema.CadastrarProdutos();
+                case 1 -> meuSistema.Cadastrar();
                 case 2 -> meuSistema.Editar();
                 case 3 -> meuSistema.Excluir();
                 case 4 -> meuSistema.Listar();
