@@ -15,40 +15,23 @@ public class Sistema {
 
     Scanner scan = new Scanner(in);
     List<Produto> meusProdutos = new ArrayList<>();
-    private final String Arquivo = "Produtos_cadastrados.dat";
+    private GerenciadorTransferencia gerenciar;
     private int proximoId = 1;
 
     public Sistema() {
-        carregandoProdutos();
-    }
-
-
-    public void salvandoProdutos(List<Produto> lista){
-        try(ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(Arquivo))){
-           out.writeObject(meusProdutos);
-        }catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-
-    @SuppressWarnings("unchecked")
-    public void carregandoProdutos(){
-        try(ObjectInputStream ois = new ObjectInputStream(new FileInputStream(Arquivo))){
-        meusProdutos = (List<Produto>) ois.readObject();
+        this.gerenciar = new GerenciadorTransferencia();
+        meusProdutos = gerenciar.carregandoProdutos();
 
         if(!meusProdutos.isEmpty()){
             proximoId = meusProdutos.stream().mapToInt(Produto::getId).max().orElse(0) + 1;
         }
-
-        } catch (IOException | ClassNotFoundException e) {
-        meusProdutos = new ArrayList<>();
     }
-}
+
 
     private int getProximoId(){
         return proximoId++;
     }
+
 
     public void Cadastrar(){
         out.println("- Cadastro de produtos -\n");
@@ -58,6 +41,10 @@ public class Sistema {
 
         out.print("Digite o preço: ");
         Double preco = scan.nextDouble();
+        scan.nextLine();
+
+        out.print("Digite a quantidade: ");
+        Double quantidade = scan.nextDouble();
         scan.nextLine();
 
         out.print("Digite a descrição: ");
@@ -86,7 +73,7 @@ public class Sistema {
 
                 File pasta = new File(minhaPasta);
                 pasta.mkdirs();
-                String nomeImagem = nome + " - " + System.currentTimeMillis() + ".jpeg";
+                String nomeImagem = nome + ".jpeg";
                 Path para = Path.of(minhaPasta, nomeImagem);
                 Files.copy(de, para);
 
@@ -96,9 +83,9 @@ public class Sistema {
             }
             imagem = null;
         }
-        Produto prod = new Produto(getProximoId(),nome, preco, descriçao, imagem);
+        Produto prod = new Produto(getProximoId(),nome, preco, quantidade, descriçao, imagem);
         meusProdutos.add(prod);
-        salvandoProdutos(meusProdutos);
+        gerenciar.salvandoProdutos(meusProdutos);
 
         out.println("\nProduto " + prod.getId() + " adicionado com sucesso! ✅\n");
     }
@@ -131,7 +118,7 @@ public class Sistema {
                 String novaDescrição = scan.nextLine();
                 p.setDescrição(novaDescrição);
 
-                salvandoProdutos(meusProdutos);
+                gerenciar.salvandoProdutos(meusProdutos);
                 out.println("\nProduto alterado com sucesso! ✅");
 
                 achou = true;
@@ -156,7 +143,7 @@ public class Sistema {
         );
 
         if (removido) {
-            salvandoProdutos(meusProdutos);
+            gerenciar.salvandoProdutos(meusProdutos);
             out.println("\nProduto removido com sucesso! ✅\n");
         } else {
             out.println("\nProduto não encontrado!");
@@ -175,37 +162,13 @@ public class Sistema {
             out.println("Id: " + p.getId());
             out.println("Nome: " + p.getNome());
             out.println("Preço: R$" + p.getPreço());
+            out.println("Quantidade: "+ p.getQuantidade());
             out.println("Descrição: " + p.getDescrição());
             out.println("\n------------------------------------------->\n");
         }
 }
 
     public void Vender() {
-        out.println("- Produtos disponíveis -\n");
-
-        for (Produto p : meusProdutos) {
-            out.println(p.getId() + " - " + p.getNome() + " = R$" + p.getPreço());
-        }
-
-        out.print("\nEscolha o produto pelo ID: ");
-        int esc = scan.nextInt();
-        scan.nextLine();
-
-        Produto produtoSelecionado = null;
-
-        for (Produto p : meusProdutos) {
-            if (p.getId() == esc) {
-                produtoSelecionado = p;
-                break;
-            }
-        }
-
-        if (produtoSelecionado != null) {
-            salvandoProdutos(meusProdutos);
-            out.println("✅ Você comprou: " + produtoSelecionado.getNome() + " por R$" + produtoSelecionado.getPreço());
-        } else {
-            out.println("Produto não encontrado!");
-        }
     }
 
 }

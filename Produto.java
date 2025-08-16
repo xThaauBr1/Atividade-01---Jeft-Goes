@@ -1,13 +1,13 @@
 import java.io.Serializable;
 
 public class Produto implements Serializable {
-    private static final long serialVersionUID = 1L;
 
+    private static final long serialVersionUID = 1L;
     private int id;
     private double preço, quantidade;
     private String nome, descrição, imagem;
 
-    public Produto(int id, String nome,Double preço, String descrição, String imagem) {
+    public Produto(int id, String nome,Double preço,Double quantidade, String descrição, String imagem) {
         this.id = id;
         this.preço = preço;
         this.quantidade = quantidade;
