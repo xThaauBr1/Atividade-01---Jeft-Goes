@@ -16,9 +16,6 @@ public class Produto implements Serializable {
         this.imagem = imagem;
     }
 
-    public double getQuantidade() {
-        return quantidade;
-    }
 
     public int getId() {
         return id;
@@ -36,6 +33,10 @@ public class Produto implements Serializable {
         return descrição;
     }
 
+    public double getQuantidade() {
+        return quantidade;
+    }
+
     public void setPreço(double preço) {
         this.preço = preço;
     }
@@ -48,8 +49,29 @@ public class Produto implements Serializable {
         this.descrição = descrição;
     }
 
-    public double multiplicar(){
-        return quantidade * preço;
+    public void setQuantidade(Double quantidade){this.quantidade = quantidade;}
+
+
+    public void adicionar(double quantidadeEsc) {
+        if (quantidadeEsc <= 0) {
+            System.out.println("A quantidade deve ser positiva!");
+        }
+        quantidade += quantidadeEsc;
+    }
+
+
+    public double multiplicar(double quantidadeEsc, double preco) {
+        if (quantidadeEsc <= 0) {
+            System.out.println("A quantidade deve ser positiva!");
+        }
+
+        if (quantidadeEsc > quantidade) {
+            System.out.println("Quantidade de produto não disponível!");
+        }
+
+        double total = quantidadeEsc * preco;
+        quantidade -= quantidadeEsc;
+        return total;
     }
 
 }

@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.InvalidMarkException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -26,7 +27,6 @@ public class Sistema {
             proximoId = meusProdutos.stream().mapToInt(Produto::getId).max().orElse(0) + 1;
         }
     }
-
 
     private int getProximoId(){
         return proximoId++;
@@ -114,8 +114,13 @@ public class Sistema {
                 scan.nextLine();
                 p.setPreço(novoPreço);
 
+                out.print("Adicione uma nova quantidade: ");
+                Double novaQuantidade = scan.nextDouble();
+                p.adicionar(novaQuantidade);
+
                 out.print("Digite a nova descrição: ");
                 String novaDescrição = scan.nextLine();
+                scan.nextLine();
                 p.setDescrição(novaDescrição);
 
                 gerenciar.salvandoProdutos(meusProdutos);
@@ -150,6 +155,14 @@ public class Sistema {
         }
     }
 
+    private void listarProdutos(Produto p) {
+        out.println("Id: " + p.getId());
+        out.println("Nome: " + p.getNome());
+        out.println("Preço: R$ " + p.getPreço());
+        out.println("Quantidade: " + p.getQuantidade());
+        out.println("Descrição: " + p.getDescrição());
+        out.println("\n------------------------------\n");
+    }
 
     public void Listar(){
         out.println("- Listar Produtos -\n");
@@ -159,16 +172,64 @@ public class Sistema {
         }
 
         for (Produto p : meusProdutos){
-            out.println("Id: " + p.getId());
-            out.println("Nome: " + p.getNome());
-            out.println("Preço: R$" + p.getPreço());
-            out.println("Quantidade: "+ p.getQuantidade());
-            out.println("Descrição: " + p.getDescrição());
-            out.println("\n------------------------------------------->\n");
+            listarProdutos(p);
         }
 }
 
     public void Vender() {
+        out.println("- Vender -\n");
+
+        if (meusProdutos.isEmpty()) {
+            out.println("Nenhum produto disponível");
+            return;
+        }
+
+        for (Produto p : meusProdutos) {
+            listarProdutos(p);
+        }
+
+        out.print("Qual produto você quer? (Digite o id): ");
+        if (!scan.hasNextInt()) {
+            out.println("ID inválido!");
+            scan.nextLine();
+            return;
+        }
+        int idprod = scan.nextInt();
+
+        Produto produtoEsc = null;
+        for (Produto p : meusProdutos) {
+            if (idprod == p.getId()) {
+                produtoEsc = p;
+                break;
+            }
+        }
+
+        if (produtoEsc == null) {
+            out.println("Produto não encontrado");
+            return;
+        }
+
+        out.print("\nDigite a quantidade do " + produtoEsc.getNome() +
+                " (" + produtoEsc.getQuantidade() + "): ");
+        if (!scan.hasNextDouble()) {
+            out.println("Quantidade inválida!");
+            scan.nextLine();
+            return;
+        }
+        double vendaQuantidade = scan.nextDouble();
+
+        if (vendaQuantidade > produtoEsc.getQuantidade()) {
+            out.println("Quantidade de produto não disponível!");
+            return;
+        }
+
+        double total = produtoEsc.multiplicar(vendaQuantidade, produtoEsc.getPreço());
+        out.println("Pedido feito com sucesso! ✅");
+        out.println("\n- Resumo da venda -\n");
+        out.println("Nome: " + produtoEsc.getNome());
+        out.println("Quantidade: " + vendaQuantidade);
+        out.println("Preço total: " + total + " R$");
+        gerenciar.salvandoProdutos(meusProdutos);
     }
 
 }

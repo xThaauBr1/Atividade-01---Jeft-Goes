@@ -8,7 +8,7 @@ public class Main {
         int esc;
 
         do {
-            System.out.print("1 - Cadastrar produto\n" +
+            System.out.print("\n1 - Cadastrar produto\n" +
                     "2 - Editar\n" +
                     "3 - Excluir\n" +
                     "4 - Listar\n" +
