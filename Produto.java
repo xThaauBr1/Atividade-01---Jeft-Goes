@@ -1,20 +1,24 @@
 import java.io.Serializable;
 
 public class Produto implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-    private static int ProximoId = 1;
     private int id;
-    private double preço;
+    private double preço, quantidade;
     private String nome, descrição, imagem;
 
-    public Produto(String nome,Double preço, String descrição, String imagem) {
-        this.id = ProximoId++;
+    public Produto(int id, String nome,Double preço, String descrição, String imagem) {
+        this.id = id;
         this.preço = preço;
+        this.quantidade = quantidade;
         this.nome = nome;
         this.descrição = descrição;
         this.imagem = imagem;
     }
 
+    public double getQuantidade() {
+        return quantidade;
+    }
 
     public int getId() {
         return id;
@@ -42,6 +46,10 @@ public class Produto implements Serializable {
 
     public void setDescrição(String descrição) {
         this.descrição = descrição;
+    }
+
+    public double multiplicar(){
+        return quantidade * preço;
     }
 
 }

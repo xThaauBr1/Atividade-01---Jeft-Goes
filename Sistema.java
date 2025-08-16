@@ -15,20 +15,19 @@ public class Sistema {
 
     Scanner scan = new Scanner(in);
     List<Produto> meusProdutos = new ArrayList<>();
-    private final String Arquivo = "produtos.dat";
+    private final String Arquivo = "Produtos_cadastrados.dat";
+    private int proximoId = 1;
 
     public Sistema() {
         carregandoProdutos();
-
     }
 
 
     public void salvandoProdutos(List<Produto> lista){
         try(ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(Arquivo))){
            out.writeObject(meusProdutos);
-
         }catch (IOException e) {
-            System.out.println("❌ " + e.getMessage());
+            System.out.println(e.getMessage());
         }
     }
 
@@ -37,10 +36,19 @@ public class Sistema {
     public void carregandoProdutos(){
         try(ObjectInputStream ois = new ObjectInputStream(new FileInputStream(Arquivo))){
         meusProdutos = (List<Produto>) ois.readObject();
+
+        if(!meusProdutos.isEmpty()){
+            proximoId = meusProdutos.stream().mapToInt(Produto::getId).max().orElse(0) + 1;
+        }
+
         } catch (IOException | ClassNotFoundException e) {
         meusProdutos = new ArrayList<>();
     }
 }
+
+    private int getProximoId(){
+        return proximoId++;
+    }
 
     public void Cadastrar(){
         out.println("- Cadastro de produtos -\n");
@@ -66,13 +74,13 @@ public class Sistema {
                 Path de = Path.of(imagem);
 
                 if (!Files.exists(de)) {
-                    System.out.println("❌ Imagem não encontrada.");
+                    System.out.println("Imagem não encontrada!");
                     return;
                 }
 
                 BufferedImage testeImagem = ImageIO.read(de.toFile());
                 if (testeImagem == null) {
-                    System.out.println("❌ O arquivo não é uma imagem válida.");
+                    System.out.println("Esse arquivo não é uma imagem válida!");
                     return;
                 }
 
@@ -84,11 +92,11 @@ public class Sistema {
 
 
             } catch (Exception e) {
-                System.out.println("❌ " + e.getMessage());
+                System.out.println(e.getMessage());
             }
             imagem = null;
         }
-        Produto prod = new Produto(nome, preco, descriçao, imagem);
+        Produto prod = new Produto(getProximoId(),nome, preco, descriçao, imagem);
         meusProdutos.add(prod);
         salvandoProdutos(meusProdutos);
 
@@ -132,7 +140,7 @@ public class Sistema {
 
         }
         if(!achou){
-            out.println("\nProduto não encontrado! ❌");
+            out.println("\nProduto não encontrado!");
         }
     }
 
@@ -151,7 +159,7 @@ public class Sistema {
             salvandoProdutos(meusProdutos);
             out.println("\nProduto removido com sucesso! ✅\n");
         } else {
-            out.println("\nProduto não encontrado! ❌");
+            out.println("\nProduto não encontrado!");
         }
     }
 
@@ -196,7 +204,7 @@ public class Sistema {
             salvandoProdutos(meusProdutos);
             out.println("✅ Você comprou: " + produtoSelecionado.getNome() + " por R$" + produtoSelecionado.getPreço());
         } else {
-            out.println("❌ Produto não encontrado.");
+            out.println("Produto não encontrado!");
         }
     }
 
